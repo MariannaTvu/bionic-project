@@ -7,13 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import static com.bionic.edu.mariana.persistence.GroupDAOImpl.ALL_ARTICLES_GROUP;
@@ -29,7 +25,7 @@ public class MyController {
     public String index(@RequestParam(value = "group_id", defaultValue = "-1") String groupId,
                         @RequestParam(value = "usefulness_level_id", defaultValue = "-1") String usefulnessLevelId,
                         Model model) {
-        model.addAttribute("groups", articleService.listGroups());
+        model.addAttribute("groups", articleService.showAllGroups());
         model.addAttribute("levels", UsefulnessLevel.values());
         model.addAttribute("articles", articleService.getArticles(Long.valueOf(groupId), Integer.valueOf(usefulnessLevelId)));
         return "index";
@@ -49,15 +45,16 @@ public class MyController {
 
     @RequestMapping("/article_add_page")
     public String articleAddPage(Model model) {
-        model.addAttribute("groups", articleService.listGroups());
+        model.addAttribute("groups", articleService.showAllGroups());
         model.addAttribute("levels", UsefulnessLevel.values());
         model.addAttribute("article", new Article());
         return "article_add_page";
     }
 
     @RequestMapping("/{articleId}")
-    public String editMerchant(@PathVariable String articleId, ModelMap model) {
-        model.addAttribute("groups", articleService.listGroups());
+    public String editMerchant(@PathVariable String articleId,
+                               Model model) {
+        model.addAttribute("groups", articleService.showAllGroups());
         model.addAttribute("levels", UsefulnessLevel.values());
         int id = Integer.valueOf(articleId);
         Article article = articleService.findArticleById(id);
@@ -66,8 +63,8 @@ public class MyController {
         model.addAttribute("link", article.getLink());
         model.addAttribute("name", article.getName());
         model.addAttribute("description", article.getDescription());
-        model.addAttribute("usefulnessLevel", article.getUsefulnessLevel());
-        model.addAttribute("group", article.getGroup());
+        model.addAttribute("usefulnessLevel", article.getUsefulnessLevel().getValue());
+        model.addAttribute("group", article.getGroup().getId());
         return "article_add_page";
     }
 
@@ -76,12 +73,11 @@ public class MyController {
                              BindingResult bindingResult,
                              Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("groups", articleService.listGroups());
+            model.addAttribute("groups", articleService.showAllGroups());
             model.addAttribute("levels", UsefulnessLevel.values());
             return "article_add_page";
         }
         Article article = new Article();
-
         article.setName(articleDTO.getName());
         article.setLink(articleDTO.getLink());
         article.setUsefulnessLevel(UsefulnessLevel.byValue(Integer.valueOf(articleDTO.getUsefulnessLevel())));
@@ -89,7 +85,7 @@ public class MyController {
         article.setDescription(articleDTO.getDescription());
 
         articleService.addArticle(article);
-        model.addAttribute("groups", articleService.listGroups());
+        model.addAttribute("groups", articleService.showAllGroups());
         model.addAttribute("articles", articleService.listArticles(ALL_ARTICLES_GROUP));
         return ("redirect:/");
     }
@@ -107,7 +103,7 @@ public class MyController {
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     public String search(@RequestParam String pattern, Model model) {
-        model.addAttribute("groups", articleService.listGroups());
+        model.addAttribute("groups", articleService.showAllGroups());
         model.addAttribute("articles", articleService.searchArticles(pattern));
         return "index";
     }
@@ -116,7 +112,7 @@ public class MyController {
     public ResponseEntity<Void> deleteArticle(@RequestParam(value = "toDelete[]", required = false) long[] toDelete, Model model) {
         if (toDelete != null)
             articleService.deleteArticle(toDelete);
-        model.addAttribute("groups", articleService.listGroups());
+        model.addAttribute("groups", articleService.showAllGroups());
         model.addAttribute("articles", articleService.listArticles(null));
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
@@ -132,7 +128,7 @@ public class MyController {
         if (toDelete != null) {
             articleService.deleteGroup(toDelete);
         }
-        model.addAttribute("groups", articleService.listGroups());
+        model.addAttribute("groups", articleService.showAllGroups());
         return "redirect:/group_delete_page";
     }
 }

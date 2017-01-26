@@ -20,6 +20,5 @@ gen
 .idea/workspace.xml
 bionic-project.iml
 out/
-src/main/java/com/bionic/edu/mariana/service/
 src/test/
 target/
