@@ -44,7 +44,7 @@ public class ArticleDAOImpl implements ArticleDAO {
     @Override
     public List<Article> list(Group group) {
         TypedQuery query;
-        if (group.getGroupType().equals(GroupType.PRIVATE)) {
+        if (group.getName().equals("All articles")) {
             query = entityManager.createQuery("SELECT a FROM Article a", Article.class);
         } else {
             query = entityManager.createQuery("SELECT a FROM Article a WHERE a.group = :group", Article.class);

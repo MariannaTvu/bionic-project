@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class MyController {
 
     @RequestMapping("/article_add_page")
     public String articleAddPage(Model model) {
-        model.addAttribute("groups", articleService.listUserGroups());
+        model.addAttribute("groups", articleService.listDefaultGroups());
         model.addAttribute("levels", UsefulnessLevel.values());
         model.addAttribute("article", new Article());
         return "article_add_page";
@@ -62,29 +63,8 @@ public class MyController {
 
         Article article = articleService.findArticleById(id);
         ArticleDTO articleDTO = new ArticleDTO(article);
-        List<Group> groups = new ArrayList<>();
-        groups = articleService.showAllGroups();
-        Group group = null;
-        Iterator groupIterator = groups.iterator();
-        while (groupIterator.hasNext()) {
-            Group g = (Group) groupIterator.next();
-            if (g.equals(article.getGroup())) {
-                groupIterator.remove();
-            }
-        }
-        groups.add(0, group);
-        List<UsefulnessLevel> levels = new ArrayList<>();
-        levels.addAll(Arrays.asList(UsefulnessLevel.values()));
-        UsefulnessLevel level = null;
-        Iterator levelsIterator = levels.iterator();
-        while (levelsIterator.hasNext()) {
-            UsefulnessLevel l = (UsefulnessLevel) levelsIterator.next();
-            if (l.equals(article.getUsefulnessLevel())) {
-                level = l;
-                levelsIterator.remove();
-            }
-        }
-        levels.add(0, level);
+        List<Group> groups = getSortedGroups(article);
+        List<UsefulnessLevel> levels = getSortedUsefulnessLevels(article);
         model.addAttribute("groups", groups);
         model.addAttribute("levels", levels);
         model.addAttribute("article", articleDTO);
@@ -96,7 +76,7 @@ public class MyController {
                              BindingResult bindingResult,
                              Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("groups", articleService.listUserGroups());
+            model.addAttribute("groups", articleService.listDefaultGroups());
             model.addAttribute("levels", UsefulnessLevel.values());
             return "article_add_page";
         }
@@ -154,5 +134,35 @@ public class MyController {
         }
         model.addAttribute("groups", articleService.listUserGroups());
         return "redirect:/group_delete_page";
+    }
+
+    private List<UsefulnessLevel> getSortedUsefulnessLevels(Article article) {
+        List<UsefulnessLevel> levels = new ArrayList<>();
+        levels.addAll(Arrays.asList(UsefulnessLevel.values()));
+        UsefulnessLevel level = null;
+        Iterator levelsIterator = levels.iterator();
+        while (levelsIterator.hasNext()) {
+            UsefulnessLevel l = (UsefulnessLevel) levelsIterator.next();
+            if (l.equals(article.getUsefulnessLevel())) {
+                level = l;
+                levelsIterator.remove();
+            }
+        }
+        levels.add(0, level);
+        return levels;
+    }
+
+    private List<Group> getSortedGroups(Article article) {
+        List<Group> groups = articleService.listDefaultGroups();
+        Group group = null;
+        Iterator groupIterator = groups.iterator();
+        while (groupIterator.hasNext()) {
+            Group g = (Group) groupIterator.next();
+            if (g.equals(article.getGroup())) {
+                groupIterator.remove();
+            }
+        }
+        groups.add(0, group);
+        return groups;
     }
 }

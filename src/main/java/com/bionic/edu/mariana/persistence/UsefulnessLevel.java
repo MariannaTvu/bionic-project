@@ -1,8 +1,5 @@
 package com.bionic.edu.mariana.persistence;
 
-/**
- * Created by Maryana on 21.01.2017.
- */
 public enum UsefulnessLevel {
     VERY_USEFUL(0, "Very useful"), USEFUL(1, "Useful"), RELATED(2, "Related"), NOT_RELATED(3, "Not related");
 

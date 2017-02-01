@@ -38,7 +38,7 @@ public class ArticleService {
                     iter.remove();
                 }
             }
-            articleDAO.findById(id).setGroup(DEFAULT_GROUP);
+            articleDAO.findById(id).setGroup(findGroupByName("Default"));
         }
         articleDAO.delete(ids);
     }
@@ -49,16 +49,21 @@ public class ArticleService {
     }
 
     @Transactional
+    public Group findGroupByName(String name) {
+        return groupDAO.findByName(name);
+    }
+
+    @Transactional
     public void deleteGroup(long[] ids) {
         for (long id : ids) {
-            if (findGroup(id).getGroupType().equals(GroupType.PRIVATE)) {
+            if (groupDAO.findById(id).getGroupType().equals(GroupType.PRIVATE)) {
                 throw new IllegalArgumentException("Cannot delete default group");
             }
             Group g = groupDAO.findById(id);
             List<Article> articles = g.getArticles();
 
             for (Article article : articles) {
-                article.setGroup(DEFAULT_GROUP);
+                article.setGroup(findGroupByName("Default"));
                 articleDAO.save(article);
             }g.getArticles().clear();
         }
@@ -80,8 +85,13 @@ public class ArticleService {
     }
 
     @Transactional
+    public List<Group> listDefaultGroups() {
+        return groupDAO.showDefaultGroupList();
+    }
+
+    @Transactional
     public List<Article> listArticles(Group group) {
-        return (group != ALL_ARTICLES_GROUP) ? group.getArticles() : articleDAO.list(ALL_ARTICLES_GROUP);
+        return (group.equals(ALL_ARTICLES_GROUP)) ? group.getArticles() : articleDAO.list(ALL_ARTICLES_GROUP);
     }
 
     @Transactional

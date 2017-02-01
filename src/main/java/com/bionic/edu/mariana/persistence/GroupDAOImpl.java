@@ -1,6 +1,5 @@
 package com.bionic.edu.mariana.persistence;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -11,7 +10,7 @@ import java.util.List;
 @Repository
 public class GroupDAOImpl implements GroupDAO {
 
-    public static final Group DEFAULT_GROUP = new Group("Default", GroupType.USER);
+    public static final Group DEFAULT_GROUP = new Group("Default", GroupType.PRIVATE);
     public static final Group ALL_ARTICLES_GROUP = new Group("All articles", GroupType.PRIVATE);
 
     @PersistenceContext
@@ -27,7 +26,9 @@ public class GroupDAOImpl implements GroupDAO {
         Group g;
         for (long id : ids) {
             g = entityManager.getReference(Group.class, id);
-            entityManager.remove(g);
+            if (!g.getName().equals("Default") || !g.getName().equals("All articles")) {
+                entityManager.remove(g);
+            }
         }
     }
 
@@ -46,10 +47,30 @@ public class GroupDAOImpl implements GroupDAO {
         return query.getResultList();
     }
 
+    @Override
+    public List<Group> showDefaultGroupList() {
+        TypedQuery<Group> query = entityManager.createQuery("SELECT g FROM Group g " +
+                "WHERE g.groupType=:groupType", Group.class);
+        query.setParameter("groupType", GroupType.USER);
+        List<Group> groups = query.getResultList();
+        Group additional = entityManager.createQuery("SELECT g FROM Group g WHERE g.name=:name", Group.class)
+                .setParameter("name", "Default")
+                .getSingleResult();
+        groups.add(0, additional);
+
+        return groups;
+    }
 
     @Override
     public List<Group> showAllGroups() {
         TypedQuery<Group> query = entityManager.createQuery("SELECT g FROM Group g", Group.class);
         return query.getResultList();
+    }
+
+    @Override
+    public Group findByName(String name) {
+        return entityManager.createQuery("SELECT g FROM Group g WHERE g.name=:name", Group.class)
+                .setParameter("name", name)
+                .getSingleResult();
     }
 }
