@@ -9,7 +9,6 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 
 import static com.bionic.edu.mariana.persistence.GroupDAOImpl.ALL_ARTICLES_GROUP;
-import static com.bionic.edu.mariana.persistence.GroupDAOImpl.DEFAULT_GROUP;
 
 @Repository
 public class ArticleDAOImpl implements ArticleDAO {
@@ -45,7 +44,7 @@ public class ArticleDAOImpl implements ArticleDAO {
     @Override
     public List<Article> list(Group group) {
         TypedQuery query;
-        if (group.getId() == (ALL_ARTICLES_GROUP.getId())) {
+        if (group.getGroupType().equals(GroupType.PRIVATE)) {
             query = entityManager.createQuery("SELECT a FROM Article a", Article.class);
         } else {
             query = entityManager.createQuery("SELECT a FROM Article a WHERE a.group = :group", Article.class);

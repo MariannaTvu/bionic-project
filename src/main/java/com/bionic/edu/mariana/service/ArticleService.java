@@ -56,11 +56,11 @@ public class ArticleService {
             }
             Group g = groupDAO.findById(id);
             List<Article> articles = g.getArticles();
+
             for (Article article : articles) {
                 article.setGroup(DEFAULT_GROUP);
                 articleDAO.save(article);
-            }
-            g.getArticles().clear();
+            }g.getArticles().clear();
         }
         groupDAO.delete(ids);
     }
