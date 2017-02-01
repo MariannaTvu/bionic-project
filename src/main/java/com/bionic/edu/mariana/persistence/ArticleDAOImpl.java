@@ -18,11 +18,7 @@ public class ArticleDAOImpl implements ArticleDAO {
 
     @Override
     public void save(Article article) {
-        if (article.getId() == 0){
-            entityManager.persist(article);
-        } else {
             entityManager.merge(article);
-        }
     }
 
     @Override
@@ -49,11 +45,11 @@ public class ArticleDAOImpl implements ArticleDAO {
     @Override
     public List<Article> list(Group group) {
         TypedQuery query;
-        if (group != ALL_ARTICLES_GROUP) {
+        if (group.getId() == (ALL_ARTICLES_GROUP.getId())) {
+            query = entityManager.createQuery("SELECT a FROM Article a", Article.class);
+        } else {
             query = entityManager.createQuery("SELECT a FROM Article a WHERE a.group = :group", Article.class);
             query.setParameter("group", group);
-        } else {
-            query = entityManager.createQuery("SELECT a FROM Article a", Article.class);
         }
         return query.getResultList();
     }

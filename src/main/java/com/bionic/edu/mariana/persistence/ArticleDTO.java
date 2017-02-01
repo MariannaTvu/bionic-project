@@ -6,32 +6,41 @@ import org.hibernate.validator.constraints.NotEmpty;
  * Created by Maryana on 25.01.2017.
  */
 public class ArticleDTO {
-    private int id;
-    private String group;
-    @NotEmpty(message = "Name should nt be empty")
+    private long id;
+    private long group;
+    @NotEmpty(message = "Name should not be empty")
     private String name;
-    @NotEmpty(message = "Link should nt be empty")
+    @NotEmpty(message = "Link should not be empty")
     private String link;
     private String description;
-    private String usefulnessLevel;
+    private int usefulnessLevel;
 
     public ArticleDTO() {
     }
 
-    public ArticleDTO(Object article) {
-
+    public ArticleDTO(Article article) {
+        this.id = article.getId();
+        this.group = article.getGroup().getId();
+        this.name = article.getName();
+        this.link = article.getLink();
+        this.description = article.getDescription();
+        this.usefulnessLevel = article.getUsefulnessLevel().getValue();
     }
 
-    public int getId() {
-
+    public long getId() {
         return id;
     }
 
-    public String getGroup() {
+    public ArticleDTO setId(long id) {
+        this.id = id;
+        return this;
+    }
+
+    public long getGroup() {
         return group;
     }
 
-    public ArticleDTO setGroup(String group) {
+    public ArticleDTO setGroup(long group) {
         this.group = group;
         return this;
     }
@@ -63,24 +72,12 @@ public class ArticleDTO {
         return this;
     }
 
-    public String getUsefulnessLevel() {
+    public int getUsefulnessLevel() {
         return usefulnessLevel;
     }
 
-    public ArticleDTO setUsefulnessLevel(String usefulnessLevel) {
+    public ArticleDTO setUsefulnessLevel(int usefulnessLevel) {
         this.usefulnessLevel = usefulnessLevel;
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return "ArticleDTO{" +
-                "id=" + id +
-                ", group='" + group + '\'' +
-                ", name='" + name + '\'' +
-                ", link='" + link + '\'' +
-                ", description='" + description + '\'' +
-                ", usefulnessLevel='" + usefulnessLevel + '\'' +
-                '}';
     }
 }

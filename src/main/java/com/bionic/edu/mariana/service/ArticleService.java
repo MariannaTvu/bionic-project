@@ -44,7 +44,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public Article findArticleById(long id){
+    public Article findArticleById(long id) {
         return articleDAO.findById(id);
     }
 
@@ -60,6 +60,7 @@ public class ArticleService {
                 article.setGroup(DEFAULT_GROUP);
                 articleDAO.save(article);
             }
+            g.getArticles().clear();
         }
         groupDAO.delete(ids);
     }
@@ -68,6 +69,7 @@ public class ArticleService {
     public List<Group> showAllGroups() {
         if (groupDAO.showAllGroups().isEmpty()) {
             groupDAO.add(DEFAULT_GROUP);
+            groupDAO.add(ALL_ARTICLES_GROUP);
         }
         return groupDAO.showAllGroups();
     }
@@ -79,7 +81,7 @@ public class ArticleService {
 
     @Transactional
     public List<Article> listArticles(Group group) {
-        return (group != null) ? group.getArticles() : articleDAO.list(ALL_ARTICLES_GROUP);
+        return (group != ALL_ARTICLES_GROUP) ? group.getArticles() : articleDAO.list(ALL_ARTICLES_GROUP);
     }
 
     @Transactional

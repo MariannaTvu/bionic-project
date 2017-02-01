@@ -22,6 +22,7 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.Arrays;
 import java.util.Properties;
 
 @Configuration
@@ -38,9 +39,11 @@ public class AppConfig extends WebMvcConfigurerAdapter {
         entityManagerFactory.setDataSource(dataSource);
         entityManagerFactory.setJpaVendorAdapter(jpaVendorAdapter);
         entityManagerFactory.setPackagesToScan("com.bionic.edu.mariana");
-
         Properties props = new Properties();
-        props.setProperty("hibernate.enable_lazy_load_no_trans", "true"); // dirty hack
+        props.put("hibernate.connection.CharSet", "UTF-8");
+        props.put("hibernate.connection.useUnicode", "true");
+        props.put("hibernate.connection.characterEncoding", "UTF-8");
+        props.setProperty("hibernate.enable_lazy_load_no_trans", "true");
         entityManagerFactory.setJpaProperties(props);
 
         return entityManagerFactory;
@@ -71,7 +74,7 @@ public class AppConfig extends WebMvcConfigurerAdapter {
     {
         DriverManagerDataSource ds = new DriverManagerDataSource();
         ds.setDriverClassName("com.mysql.jdbc.Driver");
-        ds.setUrl("jdbc:mysql://localhost:3306/bionic_project");
+        ds.setUrl("jdbc:mysql://localhost:3306/bionic_project?UseUnicode=true&amp;characterEncoding=UTF-8");
         ds.setUsername("root");
         ds.setPassword("rootpass888");
 
@@ -81,7 +84,7 @@ public class AppConfig extends WebMvcConfigurerAdapter {
     @Bean
     public InternalResourceViewResolver setupViewResolver() {
         InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-        resolver.setPrefix("WEB-INF/pages/");
+        resolver.setPrefix("/WEB-INF/pages/");
         resolver.setSuffix(".jsp");
         resolver.setViewClass(JstlView.class);
         resolver.setOrder(1);

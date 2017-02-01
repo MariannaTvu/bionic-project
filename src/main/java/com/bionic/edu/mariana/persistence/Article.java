@@ -78,4 +78,9 @@ public class Article {
     public long getId() {
         return id;
     }
+
+    public Article setId(long id) {
+        this.id = id;
+        return this;
+    }
 }

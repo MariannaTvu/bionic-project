@@ -1,5 +1,4 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <html>
 <head>
@@ -44,7 +43,6 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                            aria-expanded="false">Groups <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="/">All</a></li>
                             <c:forEach items="${groups}" var="group">
                                 <li><a href="/group/${group.id}">${group.name}</a></li>
                             </c:forEach>

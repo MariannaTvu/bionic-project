@@ -11,10 +11,8 @@ import java.util.List;
 @Repository
 public class GroupDAOImpl implements GroupDAO {
 
-    public static final Group DEFAULT_GROUP = new Group("Default", GroupType.PRIVATE);
-    public static final long DEFAULT_GROUP_ID = DEFAULT_GROUP.getId();
+    public static final Group DEFAULT_GROUP = new Group("Default", GroupType.USER);
     public static final Group ALL_ARTICLES_GROUP = new Group("All articles", GroupType.PRIVATE);
-    public static final long ALL_ARTICLES_GROUP_ID = ALL_ARTICLES_GROUP.getId();
 
     @PersistenceContext
     private EntityManager entityManager;

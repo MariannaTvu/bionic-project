@@ -9,13 +9,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 import static com.bionic.edu.mariana.persistence.GroupDAOImpl.ALL_ARTICLES_GROUP;
 
 @Controller
-@RequestMapping("/*")
+@RequestMapping("/")
 public class MyController {
 
     @Autowired
@@ -45,7 +49,7 @@ public class MyController {
 
     @RequestMapping("/article_add_page")
     public String articleAddPage(Model model) {
-        model.addAttribute("groups", articleService.showAllGroups());
+        model.addAttribute("groups", articleService.listUserGroups());
         model.addAttribute("levels", UsefulnessLevel.values());
         model.addAttribute("article", new Article());
         return "article_add_page";
@@ -54,30 +58,50 @@ public class MyController {
     @RequestMapping("/{articleId}")
     public String editMerchant(@PathVariable String articleId,
                                Model model) {
-        model.addAttribute("groups", articleService.showAllGroups());
-        model.addAttribute("levels", UsefulnessLevel.values());
         int id = Integer.valueOf(articleId);
+
         Article article = articleService.findArticleById(id);
-        model.addAttribute("article", article);
-        model.addAttribute("id", articleId);
-        model.addAttribute("link", article.getLink());
-        model.addAttribute("name", article.getName());
-        model.addAttribute("description", article.getDescription());
-        model.addAttribute("usefulnessLevel", article.getUsefulnessLevel().getValue());
-        model.addAttribute("group", article.getGroup().getId());
+        ArticleDTO articleDTO = new ArticleDTO(article);
+        List<Group> groups = new ArrayList<>();
+        groups = articleService.showAllGroups();
+        Group group = null;
+        Iterator groupIterator = groups.iterator();
+        while (groupIterator.hasNext()) {
+            Group g = (Group) groupIterator.next();
+            if (g.equals(article.getGroup())) {
+                groupIterator.remove();
+            }
+        }
+        groups.add(0, group);
+        List<UsefulnessLevel> levels = new ArrayList<>();
+        levels.addAll(Arrays.asList(UsefulnessLevel.values()));
+        UsefulnessLevel level = null;
+        Iterator levelsIterator = levels.iterator();
+        while (levelsIterator.hasNext()) {
+            UsefulnessLevel l = (UsefulnessLevel) levelsIterator.next();
+            if (l.equals(article.getUsefulnessLevel())) {
+                level = l;
+                levelsIterator.remove();
+            }
+        }
+        levels.add(0, level);
+        model.addAttribute("groups", groups);
+        model.addAttribute("levels", levels);
+        model.addAttribute("article", articleDTO);
         return "article_add_page";
     }
 
-    @RequestMapping(value = "/save_article", method = RequestMethod.POST)
+    @RequestMapping(value = "save_article", method = RequestMethod.POST)
     public String articleAdd(@Valid @ModelAttribute("article") ArticleDTO articleDTO,
                              BindingResult bindingResult,
                              Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("groups", articleService.showAllGroups());
+            model.addAttribute("groups", articleService.listUserGroups());
             model.addAttribute("levels", UsefulnessLevel.values());
             return "article_add_page";
         }
         Article article = new Article();
+        article.setId(articleDTO.getId());
         article.setName(articleDTO.getName());
         article.setLink(articleDTO.getLink());
         article.setUsefulnessLevel(UsefulnessLevel.byValue(Integer.valueOf(articleDTO.getUsefulnessLevel())));
@@ -85,7 +109,7 @@ public class MyController {
         article.setDescription(articleDTO.getDescription());
 
         articleService.addArticle(article);
-        model.addAttribute("groups", articleService.showAllGroups());
+        model.addAttribute("groups", articleService.listUserGroups());
         model.addAttribute("articles", articleService.listArticles(ALL_ARTICLES_GROUP));
         return ("redirect:/");
     }
@@ -113,7 +137,7 @@ public class MyController {
         if (toDelete != null)
             articleService.deleteArticle(toDelete);
         model.addAttribute("groups", articleService.showAllGroups());
-        model.addAttribute("articles", articleService.listArticles(null));
+        model.addAttribute("articles", articleService.listArticles(ALL_ARTICLES_GROUP));
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
@@ -128,7 +152,7 @@ public class MyController {
         if (toDelete != null) {
             articleService.deleteGroup(toDelete);
         }
-        model.addAttribute("groups", articleService.showAllGroups());
+        model.addAttribute("groups", articleService.listUserGroups());
         return "redirect:/group_delete_page";
     }
 }
